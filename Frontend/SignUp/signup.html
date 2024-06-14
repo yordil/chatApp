@@ -8,11 +8,7 @@
   </head>
   <body>
     <div class="container">
-      <form
-        action="your_php_script.php"
-        method="POST"
-        enctype="multipart/form-data"
-      >
+      <form id="signupForm" enctype="multipart/form-data">
         <h2>Register</h2>
         <div class="form-group">
           <label for="fname">First Name:</label>
@@ -44,6 +40,39 @@
           <button type="submit">Register</button>
         </div>
       </form>
+      <div id="message"></div>
     </div>
+    <script>
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const formData = new FormData(this);
+
+          fetch(
+            "http://localhost/ChatChat/chatApp/Backend/index.php/add_user",
+            {
+              method: "POST",
+              body: formData,
+            }
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              const messageDiv = document.getElementById("message");
+              if (data.success) {
+                messageDiv.innerHTML = "<p>Registration successful!</p>";
+              } else {
+                messageDiv.innerHTML = `<p>Registration failed: ${data.message}</p>`;
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              const messageDiv = document.getElementById("message");
+              messageDiv.innerHTML =
+                "<p>Registration failed due to an error.</p>";
+            });
+        });
+    </script>
   </body>
 </html>
