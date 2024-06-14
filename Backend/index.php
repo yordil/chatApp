@@ -5,7 +5,6 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, DELETE, PUT, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-
 // Database connection parameters
 $host = '127.0.0.1';
 $db = 'chatApp';
@@ -33,28 +32,26 @@ function handleAddUser($pdo) {
     $lname = $_POST['lname'];
     $email = $_POST['email'];
     $password = $_POST['password'];
-    
+
     // Validate inputs (basic validation, enhance as needed)
     if (empty($fname) || empty($lname) || empty($email) || empty($password)) {
         echo json_encode(['success' => false, 'message' => 'Please fill all required fields.']);
         exit();
     }
-    
-    // Validate email
+
+    // Validate email format
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        // if the email exists in the database
-        $sql = "SELECT * FROM users WHERE email = :email";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([':email' => $email]);
-        $user = $stmt->fetch();
-        if ($user) {
-            echo json_encode(['success' => false, 'message' => 'Email already exists.']);
-            exit();
-        }
-
-        
         echo json_encode(['success' => false, 'message' => 'Invalid email format.']);
+        exit();
+    }
 
+    // Check if the email exists in the database
+    $sql = "SELECT * FROM users WHERE email = :email";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':email' => $email]);
+    $user = $stmt->fetch();
+    if ($user) {
+        echo json_encode(['success' => false, 'message' => 'Email already exists.']);
         exit();
     }
 
@@ -105,12 +102,44 @@ function handleAddUser($pdo) {
     }
 }
 
+
+function handleLogin($pdo) {
+    // Get form data
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    // Validate inputs
+    if (empty($email) || empty($password)) {
+        echo json_encode(['success' => false, 'message' => 'Please fill all required fields.']);
+        exit();
+    }
+
+    // Check if the email exists in the database
+    $sql = "SELECT * FROM users WHERE email = :email";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':email' => $email]);
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
+        exit();
+    }
+
+    // Verify the password
+    if (password_verify($password, $user['password'])) {
+        echo json_encode(['success' => true, 'message' => 'Login successful!', 'user' => $user]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
+    }
+}
+
 // Route the request to the appropriate handler
 $request_uri = $_SERVER['REQUEST_URI'];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/add_user') !== false) {
-    handleAddUser($pdo);
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/login') !== false) {
+    handleLogin($pdo);
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid request method or endpoint.']);
-}
+}  echo json_encode(['success' => false, 'message' => 'Invalid request method or endpoint.']);
+
 ?>

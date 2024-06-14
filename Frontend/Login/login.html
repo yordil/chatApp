@@ -1,60 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Login</title>
-        <link rel="stylesheet" href="login.css">
-	</head>
-	<body>
-		<body>
-			<div class="wrapper">
-				<section class="form login">
-					<header>Realtime Chat App SWENG</header>
-					<form
-						action="#"
-						method="POST"
-						enctype="multipart/form-data"
-						autocomplete="off"
-					>
-						<div class="error-text"></div>
-						<div class="field input">
-							<label>Email Address</label>
-							<input
-								type="text"
-								name="email"
-								placeholder="Enter your email"
-								value=""
-								required
-							/>
-						</div>
-						<div class="field input">
-							<label>Password</label>
-							<input
-								type="password"
-								name="password"
-								placeholder="Enter your password"
-								required
-								value=""
-							/>
-							<i class="fas fa-eye"></i>
-						</div>
-						<div class="rememberMe">
-							<label for="rememberMe">Remember Me</label> <span>&nbsp;</span>
-							<input type="checkbox" name="rememberMe" value="Remember Me" />
-						</div>
-						<div class="field button">
-							<input type="submit" name="submit" value="Continue to Chat" />
-						</div>
-					</form>
-					<div class="link">
-						Not yet signed up? <a href="index.php">Signup now</a>
-					</div>
-				</section>
-			</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css" />
+  </head>
 
-			<script src="#"></script>
-			<script src="#"></script>
-		</body>
-	</body>
+  <body>
+    <div class="wrapper">
+      <section class="form login">
+        <header>Realtime Chat App SWENG</header>
+        <form
+          action="#"
+          method="POST"
+          enctype="multipart/form-data"
+          autocomplete="off"
+        >
+          <div class="error-text"></div>
+          <div class="field input">
+            <label>Email Address</label>
+            <input
+              type="text"
+              name="email"
+              placeholder="Enter your email"
+              value=""
+              required
+            />
+          </div>
+          <div class="field input">
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+              value=""
+            />
+            <i class="fas fa-eye"></i>
+          </div>
+          <div class="rememberMe">
+            <label for="rememberMe">Remember Me</label> <span>&nbsp;</span>
+            <input type="checkbox" name="rememberMe" value="Remember Me" />
+          </div>
+          <div class="field button">
+            <input type="submit" name="submit" value="Continue to Chat" />
+          </div>
+        </form>
+        <div class="link">
+          Not yet signed up?
+          <a
+            href="http://localhost/ChatChat/chatApp/Frontend/SignUp/signup.html"
+            >Signup now</a
+          >
+        </div>
+      </section>
+    </div>
+    <script>
+	  document.querySelector("form").addEventListener("submit", async (e) => {
+		e.preventDefault();
+		let email = document.querySelector("input[name='email']").value;
+		let password = document.querySelector("input[name='password']").value;
+		let rememberMe = document.querySelector("input[name='rememberMe']").value;
+		let formData = new FormData();
+		formData.append("email", email);
+		formData.append("password", password);
+		formData.append("rememberMe", rememberMe);
+		let response = await fetch(
+		  "http://localhost/ChatChat/chatApp/Backend/index.php/login",
+		  {
+			method: "POST",
+			body: formData,
+		  }
+		);
+		let result = await response.json();
+		if (result.status == "success") {
+		  window.location.href = "http://localhost/ChatChat/chatApp/Frontend/Chat/chat.html";
+		} else {
+		  document.querySelector(".error-text").innerHTML = result.message;
+		}
+	  });
+	</script>
+	</script>
+  </body>
 </html>

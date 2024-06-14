@@ -40,7 +40,7 @@
           <button type="submit">Register</button>
         </div>
       </form>
-      <div id="message"></div>
+      <div id="message" style="color: red"></div>
     </div>
     <script>
       document
@@ -61,6 +61,10 @@
             .then((data) => {
               const messageDiv = document.getElementById("message");
               if (data.success) {
+                // Redirect to login page
+                window.location.href =
+                  "http://localhost/ChatChat/chatApp/Frontend/Login/login.html";
+
                 messageDiv.innerHTML = "<p>Registration successful!</p>";
               } else {
                 messageDiv.innerHTML = `<p>Registration failed: ${data.message}</p>`;
