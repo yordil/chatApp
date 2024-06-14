@@ -45,37 +45,24 @@
     <script>
       document
         .getElementById("signupForm")
-        .addEventListener("submit", function (event) {
+        .addEventListener("submit", async function (event) {
           event.preventDefault();
-
-          const formData = new FormData(this);
-
-          fetch(
+          let formData = new FormData(this);
+          let response = await fetch(
             "http://localhost/ChatChat/chatApp/Backend/index.php/add_user",
             {
               method: "POST",
               body: formData,
             }
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              const messageDiv = document.getElementById("message");
-              if (data.success) {
-                // Redirect to login page
-                window.location.href =
-                  "http://localhost/ChatChat/chatApp/Frontend/Login/login.html";
-
-                messageDiv.innerHTML = "<p>Registration successful!</p>";
-              } else {
-                messageDiv.innerHTML = `<p>Registration failed: ${data.message}</p>`;
-              }
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-              const messageDiv = document.getElementById("message");
-              messageDiv.innerHTML =
-                "<p>Registration failed due to an error.</p>";
-            });
+          );
+          let data = await response.json();
+          let messageDiv = document.getElementById("message");
+          if (data.success) {
+            location.href =
+              "http://localhost/ChatChat/chatApp/Frontend/Login/login.html";
+          } else {
+            messageDiv.innerHTML = `Registration failed: ${data.message}`;
+          }
         });
     </script>
   </body>

@@ -22,6 +22,7 @@ $options = [
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
+    ob_clean();
     echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
     exit();
 }
@@ -35,12 +36,14 @@ function handleAddUser($pdo) {
 
     // Validate inputs (basic validation, enhance as needed)
     if (empty($fname) || empty($lname) || empty($email) || empty($password)) {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'Please fill all required fields.']);
         exit();
     }
 
     // Validate email format
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'Invalid email format.']);
         exit();
     }
@@ -51,6 +54,7 @@ function handleAddUser($pdo) {
     $stmt->execute([':email' => $email]);
     $user = $stmt->fetch();
     if ($user) {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'Email already exists.']);
         exit();
     }
@@ -90,18 +94,21 @@ function handleAddUser($pdo) {
                     ':image' => $newImageName,
                 ]);
 
+                ob_clean();
                 echo json_encode(['success' => true, 'message' => 'Registration successful!']);
             } else {
+                ob_clean();
                 echo json_encode(['success' => false, 'message' => 'There was some error moving the file to upload directory.']);
             }
         } else {
+            ob_clean();
             echo json_encode(['success' => false, 'message' => 'Upload failed. Allowed file types: ' . implode(',', $allowedfileExtensions)]);
         }
     } else {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'There is some error in the file upload.']);
     }
 }
-
 
 function handleLogin($pdo) {
     // Get form data
@@ -110,6 +117,7 @@ function handleLogin($pdo) {
 
     // Validate inputs
     if (empty($email) || empty($password)) {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'Please fill all required fields.']);
         exit();
     }
@@ -121,25 +129,29 @@ function handleLogin($pdo) {
     $user = $stmt->fetch();
 
     if (!$user) {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
         exit();
     }
 
     // Verify the password
     if (password_verify($password, $user['password'])) {
+        ob_clean();
         echo json_encode(['success' => true, 'message' => 'Login successful!', 'user' => $user]);
     } else {
+        ob_clean();
         echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
     }
 }
 
 // Route the request to the appropriate handler
 $request_uri = $_SERVER['REQUEST_URI'];
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/login') !== false) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/add_user') !== false) {
+    handleAddUser($pdo);
+} else if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/login') !== false) {
     handleLogin($pdo);
 } else {
+    ob_clean();
     echo json_encode(['success' => false, 'message' => 'Invalid request method or endpoint.']);
-}  echo json_encode(['success' => false, 'message' => 'Invalid request method or endpoint.']);
-
+}
 ?>
