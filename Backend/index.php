@@ -137,12 +137,14 @@ function handleLogin($pdo) {
     // Verify the password
     if (password_verify($password, $user['password'])) {
         ob_clean();
-        echo json_encode(['success' => true, 'message' => 'Login successful!', 'user' => $user]);
+        echo json_encode(['success' => true, 'message' => 'Login successful!', 'user' => ['id' => $user['id'], 'fname' => $user['fname'], 'lname' => $user['lname'], 'email' => $user['email']]]);
     } else {
         ob_clean();
         echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
     }
 }
+
+
 
 // Route the request to the appropriate handler
 $request_uri = $_SERVER['REQUEST_URI'];

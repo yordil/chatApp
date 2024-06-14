@@ -63,8 +63,10 @@
           );
           let data = await response.json();
           if (data.success) {
+            // Save user ID in local storage or perform any action with the user ID
+            localStorage.setItem("userID", data.user.id);
             location.href =
-              "http://localhost/ChatChat/chatApp/Frontend/Homepage/Homepage.html";
+              "http://localhost/ChatChat/chatApp/Frontend/Chat/chat.html";
           } else {
             document.querySelector(".error-text").textContent = data.message;
           }
