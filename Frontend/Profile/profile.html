@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-image">
+            <img id="profilePic" src="https://st.depositphotos.com/1000955/1261/i/450/depositphotos_12613025-stock-photo-rippled-water-surface.jpg" alt="Profile Image">
+            <input type="file" id="uploadPic" accept="image/*" style="display: none;" onchange="loadFile(event)">
+            <button onclick="document.getElementById('uploadPic').click()">Edit</button>
+        </div>
+        <div class="profile-info">
+            <div class="input-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="Teklu Moges" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="teklu@gmail.com" readonly>
+            </div>
+        </div>
+    </div>
+    <div class="user-report">
+        <h2>User Data Report</h2>
+        <p>Friends: 120</p>
+        <p>Joined Date: January 15, 2020</p>
+        <p>Groups Joined: Section E, AASTU Students</p>
+        <p>Profile Views: 10</p>
+    </div>
+    <script>
+        function loadFile(event) {
+            var image = document.getElementById('profilePic');
+            image.src = URL.createObjectURL(event.target.files[0]);
+            image.onload = function() {
+                URL.revokeObjectURL(image.src); // free memory
+            }
+
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.wrapper {
+    background: #fff;
+    width: 100%;
+    max-width: 1024px;
+    border-radius: 16px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.wrapper .users {
+    padding: 20px 30px;
+}
+
+.wrapper .users header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e6e6e6;
+}
+
+.wrapper .users header .content {
+    display: flex;
+    align-items: center;
+}
+
+.wrapper .users header .content img {
+    height: 50px;
+    width: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.wrapper .users header .details {
+    display: flex;
+    flex-direction: column;
+}
+
+.wrapper .users header .details span {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.wrapper .users header .details p {
+    font-size: 14px;
+    color: #888;
+}
+
+.wrapper .users header .search {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    margin: 0 15px;
+    position: relative;
+}
+
+.wrapper .users header .search input {
+    width: 100%;
+    padding: 10px 40px 10px 10px; /* Add padding to the right for the button */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
+.wrapper .users header .search .search-btn {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.3s ease, font-weight 0.3s ease;
+}
+
+.wrapper .users header .search .search-btn:hover {
+    color: #000;
+    font-weight: bold;
+}
+
+.wrapper .users header .logout-btn {
+    color: #fff;
+    background: #007bff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.wrapper .users header .logout-btn:hover {
+    background: #0056b3;
+}
+
+.wrapper .users .buttons {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.wrapper .users .buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #007bff;
+    color: #fff;
+    transition: background 0.3s ease;
+}
+
+.wrapper .users .buttons .group-btn:hover {
+    background: #0056b3;
+}
+
+.wrapper .users .buttons .user-btn:hover {
+    background: #0056b3;
+}
+
+.wrapper .users .users-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    border-top: 1px solid #e6e6e6;
+}
+
+.wrapper .users .users-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.wrapper .users .users-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.wrapper .users .users-list::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+.wrapper .users .users-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.wrapper .users .users-list .user {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #e6e6e6;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.wrapper .users .users-list .user img {
+    height: 40px;
+    width: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.wrapper .users .users-list .user .details {
+    display: flex;
+    flex-direction: column;
+}
+
+.wrapper .users .users-list .user .details span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.wrapper .users .users-list .user .details p {
+    font-size: 14px;
+    color: #888;
+}
+
+.wrapper .users .users-list .user:hover {
+    background: #f1f1f1;
+}
