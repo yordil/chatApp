@@ -1,37 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="Homepage.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+    <link rel="stylesheet" href="Homepage.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Selecting logged user data elements
+        const LoggeduserImage = document.querySelector(".LoggeduserImage");
+        const LoggeduserName = document.querySelector(".LoggeduserName");
+
+        // Getting data from local storage
+        const userImage = localStorage.getItem("userImage");
+        const userName = localStorage.getItem("userName");
+
+        // Debugging
+        console.log("userImage from localStorage:", userImage);
+        console.log("userName from localStorage:", userName);
+
+        // Setting data to the frontend
+        if (localStorage.getItem("user_id")) {
+          document.querySelector(".sender_id_id").value =
+            localStorage.getItem("user_id");
+        }
+        if (userImage) {
+          // Setting the image source from backend using the userImage from local storage
+          LoggeduserImage.src = `http://localhost/ChatChat/chatApp/Backend/uploaded_files/${userImage}`;
+        }
+        if (userName) {
+          LoggeduserName.textContent = userName;
+        }
+
+        //////////////////
+        document
+          .querySelector(".typing-area")
+          .addEventListener("submit", async function (event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+            formData.append("sender_id", localStorage.getItem("userID"));
+            try {
+              let response = await fetch(
+                "http://localhost/ChatChat/chatApp/Backend/index.php/send_message",
+                {
+                  method: "POST",
+                  body: formData,
+                }
+              );
+              let text = await response.text();
+              try {
+                let data = JSON.parse(text);
+                if (data.success) {
+                  // Handle successful message sending (e.g., clear the form, update the chat)
+                  document.querySelector(
+                    ".typing-area input[name='message']"
+                  ).value = "";
+                  // Optionally, you can update the chat-box with the new message
+                } else {
+                  console.error("Failed to send message:", data.message);
+                }
+              } catch (jsonError) {
+                console.error("Failed to parse JSON:", jsonError, text);
+              }
+            } catch (networkError) {
+              console.error("Network error:", networkError);
+            }
+          });
+      });
+    </script>
     <div class="wrapper">
-        <section class="users">
-            <header>
-                <div class="content">
-                    <img src="https://avatars.githubusercontent.com/u/99693126?v=4" alt="User Image">
-                    <div class="details">
-                        <span>John Doe</span>
-                        <p>Active Now</p>
-                    </div>
-                </div>
-                <div class="search">
-                    <input type="text" placeholder="Enter name to search...">
-                    <button class="search-btn"><i class="fas fa-search"></i></button>
-                </div>
-                <a href="php/logout.php?logout_id=12345" class="logout-btn">Logout</a>
-            </header>
-            <div class="buttons">
-                <button class="group-btn">Group</button>
-                <button class="user-btn">User</button>
+      <section class="users">
+        <header>
+          <div class="content">
+            <img alt="User Image" class="LoggeduserImage" />
+            <div class="details">
+              <span class="LoggeduserName">John Doe</span>
+              <p>Active Now</p>
             </div>
-            <div class="users-list">
-                <!-- User list will be dynamically inserted here -->
+          </div>
+          <div class="search">
+            <input type="text" placeholder="Enter name to search..." />
+            <button class="search-btn"><i class="fas fa-search"></i></button>
+          </div>
+          <a
+            href="http://localhost/ChatChat/chatApp/Frontend/Login/login.html"
+            class="logout-btn"
+            >Logout</a
+          >
+        </header>
+        <div class="buttons">
+          <button class="group-btn">Group</button>
+          <button class="user-btn">User</button>
+        </div>
+        <div class="users-list">
+          <!-- User list will be dynamically inserted here -->
+        </div>
+      </section>
+      <section class="chat">
+        <header>
+          <div class="content">
+            <img
+              src="https://avatars.githubusercontent.com/u/99693126?v=4"
+              alt="User Image"
+            />
+            <div class="details">
+              <span>Chat with User</span>
             </div>
-        </section>
+          </div>
+        </header>
+        <div class="chat-box">
+          <!-- Chat messages will be dynamically inserted here -->
+        </div>
+        <form class="typing-area" method="POST" enctype="multipart/form-data">
+          <input
+            type="text"
+            class="sender_id_id"
+            name="sender_id"
+            value=""
+            hidden
+          />
+          <input
+            type="text"
+            class="receiver_id_id"
+            name="receiver_id"
+            value=""
+            hidden
+          />
+          <input
+            type="text"
+            name="message"
+            placeholder="Type a message here..."
+            required
+          />
+          <button class="send-btn">
+            <i class="fab fa-telegram-plane"></i>
+          </button>
+        </form>
+      </section>
     </div>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>

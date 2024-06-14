@@ -137,14 +137,94 @@ function handleLogin($pdo) {
     // Verify the password
     if (password_verify($password, $user['password'])) {
         ob_clean();
-        echo json_encode(['success' => true, 'message' => 'Login successful!', 'user' => ['id' => $user['id'], 'fname' => $user['fname'], 'lname' => $user['lname'], 'email' => $user['email']]]);
+        echo json_encode(['success' => true, 'message' => 'Login successful!', 'user' => ['id' => $user['id'], 'fname' => $user['fname'], 'lname' => $user['lname'], 'email' => $user['email'], 'image' => $user['image'], 'status' => $user['status']]]);
     } else {
         ob_clean();
         echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
     }
 }
 
+function handleGetUsers($pdo) {
+    try {
+        $sql = "SELECT id, fname, lname, email, image, status FROM users";
+        $stmt = $pdo->query($sql);
+        $users = $stmt->fetchAll();
+        echo json_encode(['success' => true, 'users' => $users]);
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch users: ' . $e->getMessage()]);
+    }
+}
 
+
+// Fetch all messages from the database
+ function feachAllMessages($pdo) {
+    try {
+        $sql = "SELECT * FROM messages";
+        $stmt = $pdo->query($sql);
+        $messages = $stmt->fetchAll();
+        echo json_encode(['success' => true, 'messages' => $messages]);
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch messages: ' . $e->getMessage()]);
+    }
+}
+
+function handleFetchMessages($pdo) {
+    try {
+        $sender_id = $_GET['sender_id'];
+        $receiver_id = $_GET['receiver_id'];
+
+        $sql = "SELECT * FROM messages WHERE (sender_id = :sender_id AND receiver_id = :receiver_id) OR (sender_id = :receiver_id AND receiver_id = :sender_id) ORDER BY id ASC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':sender_id' => $sender_id,
+            ':receiver_id' => $receiver_id
+        ]);
+        $messages = $stmt->fetchAll();
+
+        echo json_encode(['success' => true, 'messages' => $messages]);
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch messages: ' . $e->getMessage()]);
+    } catch (\Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'An unexpected error occurred: ' . $e->getMessage()]);
+    }
+}
+
+
+
+
+function handleSendMessage($pdo) {
+    try {
+        // Retrieve the POST data
+        $sender_id = $_POST['sender_id'];
+        $receiver_id = $_POST['receiver_id'];
+        $message = $_POST['message'];
+
+        // Validate the input
+        if (empty($sender_id) || empty($receiver_id) || empty($message)) {
+            throw new Exception('Missing required fields');
+        }
+
+        // Prepare and execute the SQL query
+        $stmt = $pdo->prepare("INSERT INTO messages (sender_id, receiver_id, message) VALUES (:sender_id, :receiver_id, :message)");
+        $stmt->execute([
+            ':sender_id' => $sender_id,
+            ':receiver_id' => $receiver_id,
+            ':message' => $message
+        ]);
+
+        // Return success response
+        echo json_encode([
+            'success' => true,
+            'message' => 'Message sent successfully.'
+        ]);
+    } catch (Exception $e) {
+        // Return error response
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+}
 
 // Route the request to the appropriate handler
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -152,7 +232,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/add_user') !=
     handleAddUser($pdo);
 } else if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/login') !== false) {
     handleLogin($pdo);
-} else {
+} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/get_users') !== false) {
+    handleGetUsers($pdo);
+} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/fetch_messages') !== false) {
+    handleFetchMessages($pdo);
+} else if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/send_message') !== false) {
+    handleSendMessage($pdo);
+} 
+else if ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/fetch_all_messages') !== false) {
+    feachAllMessages($pdo);
+}
+
+else {
     ob_clean();
     echo json_encode(['success' => false, 'message' => 'Invalid request method or endpoint.']);
 }

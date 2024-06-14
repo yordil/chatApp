@@ -10,7 +10,7 @@
     <div class="wrapper">
       <section class="form login">
         <header>Realtime Chat App SWENG</header>
-        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+        <form method="POST" enctype="multipart/form-data">
           <div class="error-text"></div>
           <div class="field input">
             <label>Email Address</label>
@@ -65,8 +65,14 @@
           if (data.success) {
             // Save user ID in local storage or perform any action with the user ID
             localStorage.setItem("userID", data.user.id);
+            localStorage.setItem("userImage", data.user.image);
+            localStorage.setItem(
+              "userName",
+              data.user.fname + " " + data.user.lname
+            );
+
             location.href =
-              "http://localhost/ChatChat/chatApp/Frontend/Chat/chat.html";
+              "http://localhost/ChatChat/chatApp/Frontend/Homepage/Homepage.html";
           } else {
             document.querySelector(".error-text").textContent = data.message;
           }
