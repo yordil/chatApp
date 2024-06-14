@@ -3,10 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Home</title>
+    <link rel="stylesheet" href="Homepage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
-    
-    
+    <div class="wrapper">
+        <section class="users">
+            <header>
+                <div class="content">
+                    <img src="https://avatars.githubusercontent.com/u/99693126?v=4" alt="User Image">
+                    <div class="details">
+                        <span>John Doe</span>
+                        <p>Active Now</p>
+                    </div>
+                </div>
+                <div class="search">
+                    <input type="text" placeholder="Enter name to search...">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                <a href="php/logout.php?logout_id=12345" class="logout-btn">Logout</a>
+            </header>
+            <div class="buttons">
+                <button class="group-btn">Group</button>
+                <button class="user-btn">User</button>
+            </div>
+            <div class="users-list">
+                <!-- User list will be dynamically inserted here -->
+            </div>
+        </section>
+    </div>
 </body>
 </html>
