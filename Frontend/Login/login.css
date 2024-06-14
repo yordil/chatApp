@@ -1,0 +1,113 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.wrapper {
+    background: #fff;
+    max-width: 400px;
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.wrapper .form {
+    padding: 20px 30px;
+}
+
+.wrapper .form header {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.wrapper .form form .field {
+    margin-bottom: 15px;
+}
+
+.wrapper .form form .field input {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.wrapper .form form .field input:focus {
+    border-color: #007bff;
+}
+
+.wrapper .form form .field label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.wrapper .form form .field .fas {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.wrapper .form form .rememberMe {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.wrapper .form form .rememberMe label {
+    margin-left: 5px;
+    font-size: 14px;
+}
+
+.wrapper .form form .field.button input {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.wrapper .form form .field.button input:hover {
+    background: #0056b3;
+}
+
+.wrapper .form .link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.wrapper .form .link a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.wrapper .form .link a:hover {
+    text-decoration: underline;
+}
+
+.wrapper .form .error-text {
+    color: #d9534f;
+    font-size: 14px;
+    margin-bottom: 15px;
+    display: none;
+}
