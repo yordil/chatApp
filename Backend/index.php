@@ -9,7 +9,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 $host = '127.0.0.1';
 $db = 'chatApp';
 $user = 'root'; // Change this to your database user
-$pass = ''; // Change this to your database password
+$pass = '123ABC+-x=0'; // Change this to your database password
 $charset = 'utf8mb4';
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 
@@ -325,7 +325,7 @@ function handleDeleteAccount($pdo) {
         // Commit the transaction
         $pdo->commit();
 
-        // Return success response
+        
         echo json_encode([
             'success' => true,
             'message' => 'Account deleted successfully.'
@@ -342,6 +342,26 @@ function handleDeleteAccount($pdo) {
             'success' => false,
             'message' => $e->getMessage()
         ]);
+    }
+}
+
+function handleFetchProfile($pdo) {
+    try {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $user_id = $input['userID'];
+
+        $sql = "SELECT created_at FROM users WHERE id = :user_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':user_id' => $user_id]);
+        $user = $stmt->fetch();
+
+        if ($user) {
+            echo json_encode(['success' => true, 'created_at' => $user['created_at']]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'User not found.']);
+        }
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch profile: ' . $e->getMessage()]);
     }
 }
 
@@ -368,7 +388,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/add_user') !=
     handleUpdateProfile($pdo);
 }elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/delete') !== false) {
     handleDeleteAccount($pdo);
+}elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/profile') !== false) {
+    handleFetchProfile($pdo);
 }
+
 
 
 else {
