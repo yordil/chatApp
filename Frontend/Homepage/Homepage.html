@@ -41,38 +41,6 @@
         if (userName) {
           LoggeduserName.textContent = userName;
         }
-
-        document
-          .querySelector(".typing-area")
-          .addEventListener("submit", async function (event) {
-            event.preventDefault();
-            let formData = new FormData(this);
-            formData.append("sender_id", localStorage.getItem("userID"));
-            try {
-              let response = await fetch(
-                "http://localhost/ChatChat/chatApp/Backend/index.php/send_message",
-                {
-                  method: "POST",
-                  body: formData,
-                }
-              );
-              let text = await response.text();
-              try {
-                let data = JSON.parse(text);
-                if (data.success) {
-                  document.querySelector(
-                    ".typing-area input[name='message']"
-                  ).value = "";
-                } else {
-                  console.error("Failed to send message:", data.message);
-                }
-              } catch (jsonError) {
-                console.error("Failed to parse JSON:", jsonError, text);
-              }
-            } catch (networkError) {
-              console.error("Network error:", networkError);
-            }
-          });
       });
     </script>
     <div class="wrapper">
@@ -102,6 +70,12 @@
         <div class="buttons">
           <button class="group-btn">Group</button>
           <button class="user-btn">User</button>
+        </div>
+        <div class="group-actions" style="display: none">
+          <button class="create-group-btn">Create Group</button>
+          <div class="group-list">
+            <!-- Group list will be dynamically inserted here -->
+          </div>
         </div>
         <div class="users-list">
           <!-- User list will be dynamically inserted here -->
@@ -149,7 +123,29 @@
           </button>
         </form>
       </section>
+      <!-- Add this to your HTML file -->
+      <div id="createGroupModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2>Create Group</h2>
+          <form
+            id="createGroupForm"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+            <label for="groupName">Group Name:</label>
+            <input type="text" id="groupName" name="groupName" required />
+            <h3>Select Members:</h3>
+            <div class="members-list">
+              <!-- User list will be populated here by JavaScript -->
+            </div>
+            <input id="photo" type="file" name="groupImage" accept="image/*" />
+            <button type="submit">Create Group</button>
+          </form>
+        </div>
+      </div>
     </div>
+
     <script src="script.js"></script>
   </body>
 </html>

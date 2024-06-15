@@ -267,3 +267,151 @@ body {
   /* color: #007bff; */
   /* background: #007bff; */
 }
+
+/******************************* */
+
+.group-actions {
+  margin: 20px 0;
+}
+
+.group-actions .create-group-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background: #007bff;
+  color: #fff;
+  transition: background 0.3s ease;
+}
+
+.group-actions .create-group-btn:hover {
+  background: #0056b3;
+}
+
+.group-actions .group-list {
+  margin-top: 10px;
+  border-top: 1px solid #e6e6e6;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.group-actions .group-list .group {
+  padding: 10px;
+  border-bottom: 1px solid #e6e6e6;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.group-actions .group-list .group:hover {
+  background: #f1f1f1;
+}
+
+/***************************************/
+
+/* Add this CSS for modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.modal-content .close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.modal-content .close:hover,
+.modal-content .close:focus {
+  color: black;
+  text-decoration: none;
+}
+
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.modal-content label {
+  font-size: 16px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.modal-content input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal-content h3 {
+  margin-bottom: 10px;
+}
+
+.modal-content .members-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.modal-content .members-list .user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.modal-content .members-list .user img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.modal-content .members-list .user label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.modal-content .members-list .user input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.modal-content button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.modal-content button[type="submit"]:hover {
+  background-color: #45a049;
+}

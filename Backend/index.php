@@ -9,7 +9,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 $host = '127.0.0.1';
 $db = 'chatApp';
 $user = 'root'; // Change this to your database user
-$pass = '123ABC+-x=0'; // Change this to your database password
+$pass = ''; // Change this to your database password
 $charset = 'utf8mb4';
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 
@@ -199,17 +199,55 @@ function handleSendMessage($pdo) {
         $receiver_id = $_POST['receiver_id'];
         $message = $_POST['message'];
 
+        $attchment = null;
+
+
+
+
+
         // Validate the input
         if (empty($sender_id) || empty($receiver_id) || empty($message)) {
             throw new Exception('Missing required fields');
         }
 
+        // Handle file upload if a file is uploaded
+
+        if($_FILES['attachment']['error'] == UPLOAD_ERR_OK) {
+            $attachmentTmpPath = $_FILES['attachment']['tmp_name'];
+            $attachmentName = $_FILES['attachment']['name'];
+            $attachmentSize = $_FILES['attachment']['size'];
+            $attachmentType = $_FILES['attachment']['type'];
+            $attachmentNameCmps = explode(".", $attachmentName);
+            $attachmentExtension = strtolower(end($attachmentNameCmps));
+            $newAttachmentName = md5(time() . $attachmentName) . '.' . $attachmentExtension;
+
+            // Allowed file extensions
+            $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx');
+            if (in_array($attachmentExtension, $allowedfileExtensions)) {
+                // Directory in which the uploaded file will be moved
+                $uploadFileDir = './uploaded_files/';
+                if (!file_exists($uploadFileDir)) {
+                    mkdir($uploadFileDir, 0755, true);
+                }
+                $dest_path = $uploadFileDir . $newAttachmentName;
+
+                if (move_uploaded_file($attachmentTmpPath, $dest_path)) {
+                    $attachment = $newAttachmentName;
+                } else {
+                    throw new Exception('There was some error moving the file to upload directory.');
+                }
+            } else {
+                throw new Exception('Upload failed. Allowed file types: ' . implode(',', $allowedfileExtensions));
+            }
+        }
+
         // Prepare and execute the SQL query
-        $stmt = $pdo->prepare("INSERT INTO messages (sender_id, receiver_id, message) VALUES (:sender_id, :receiver_id, :message)");
+        $stmt = $pdo->prepare("INSERT INTO messages (sender_id, receiver_id, message, attachment) VALUES (:sender_id, :receiver_id, :message, :attachment)");
         $stmt->execute([
             ':sender_id' => $sender_id,
             ':receiver_id' => $receiver_id,
-            ':message' => $message
+            ':message' => $message,
+            ':attachment' => $attachment
         ]);
 
         // Return success response
@@ -366,8 +404,166 @@ function handleFetchProfile($pdo) {
 }
 
 
+/////////////////////////////////////////
+
+function handleCreateGroup($pdo) {
+    try {
+        // Get JSON input data
+        // $input = json_decode(file_get_contents('php://input'), true);
+        $group_name = $_POST['group_name'];
+        $members = $_POST['members'];
+        $photo = null;
+
+        // Validate inputs
+        if (empty($group_name) || empty($members)) {
+            throw new Exception('Group name and members are required.');
+        }
+        if($_FILES['photo']['error'] == UPLOAD_ERR_OK) {
+            $photoTmpPath = $_FILES['photo']['tmp_name'];
+            $photoName = $_FILES['photo']['name'];
+            $photoSize = $_FILES['photo']['size'];
+            $photoType = $_FILES['photo']['type'];
+            $photoNameCmps = explode(".", $photoName);
+            $photoExtension = strtolower(end($photoNameCmps));
+            $newPhotoName = md5(time() . $photoName) . '.' . $photoExtension;
+
+            // Allowed file extensions
+            $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg');
+            if (in_array($photoExtension, $allowedfileExtensions)) {
+                // Directory in which the uploaded file will be moved
+                $uploadFileDir = './uploaded_files/';
+                if (!file_exists($uploadFileDir)) {
+                    mkdir($uploadFileDir, 0755, true);
+                }
+                $dest_path = $uploadFileDir . $newPhotoName;
+
+                if (move_uploaded_file($photoTmpPath, $dest_path)) {
+                    $photo = $newPhotoName;
+                } else {
+                    throw new Exception('There was some error moving the file to upload directory.');
+                }
+            } else {
+                throw new Exception('Upload failed. Allowed file types: ' . implode(',', $allowedfileExtensions));
+            }
+        }
+
+        // Insert group into groups table
+        $sql = "INSERT INTO groupss (name, photo) VALUES (:name, :photo)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':name' => $group_name, ':photo' => $photo]);
+        $group_id = $pdo->lastInsertId();
+
+        // Insert group members into group_members table
+        $sql = "INSERT INTO group_members (group_id, user_id) VALUES (:group_id, :user_id)";
+        $stmt = $pdo->prepare($sql);
+        foreach ($members as $member_id) {
+            $stmt->execute([':group_id' => $group_id, ':user_id' => $member_id]);
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Group created successfully.']);
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+}
+
+// Function to fetch all groups
+function handleGetGroups($pdo) {
+    try {
+        $user_id = $_GET['user_id'];
+        $sql = "SELECT * FROM groupss WHERE id IN (SELECT group_id FROM group_members WHERE user_id = $user_id)";
+        $stmt = $pdo->query($sql);
+        $groups = $stmt->fetchAll();
+        echo json_encode(['success' => true, 'groups' => $groups]);
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch groups: ' . $e->getMessage()]);
+    }
+}
 
 
+function fetchAllGroupMessages($pdo) {
+    try {
+        $group_id = $_GET['group_id'];
+        $sql = "SELECT gm.id, gm.message, gm.attachment, gm.created_at, u.fname, u.lname, gm.sender_id 
+                FROM group_messages gm 
+                JOIN users u ON gm.sender_id = u.id 
+                WHERE gm.group_id = $group_id";
+        $stmt = $pdo->query($sql);
+        $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'messages' => $messages]);
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch messages: ' . $e->getMessage()]);
+    }
+}
+
+// funcctiontosend group message
+function handleSendGroupMessage($pdo) {
+    try {
+        // Retrieve the POST data
+        $sender_id = $_POST['sender_id'];
+        $group_id = $_POST['group_id'];
+        $message = $_POST['message'];
+        $attchment = null;
+
+        // Validate the input
+        if (empty($sender_id) || empty($group_id) || empty($message)) {
+            throw new Exception('Missing required fields');
+        }
+
+        // Handle file upload if a file is uploaded
+
+        if($_FILES['attachment']['error'] == UPLOAD_ERR_OK) {
+            $attachmentTmpPath = $_FILES['attachment']['tmp_name'];
+            $attachmentName = $_FILES['attachment']['name'];
+            $attachmentSize = $_FILES['attachment']['size'];
+            $attachmentType = $_FILES['attachment']['type'];
+            $attachmentNameCmps = explode(".", $attachmentName);
+            $attachmentExtension = strtolower(end($attachmentNameCmps));
+            $newAttachmentName = md5(time() . $attachmentName) . '.' . $attachmentExtension;
+
+            // Allowed file extensions
+            $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx');
+            if (in_array($attachmentExtension, $allowedfileExtensions)) {
+                // Directory in which the uploaded file will be moved
+                $uploadFileDir = './uploaded_files/';
+                if (!file_exists($uploadFileDir)) {
+                    mkdir($uploadFileDir, 0755, true);
+                }
+                $dest_path = $uploadFileDir . $newAttachmentName;
+
+                if (move_uploaded_file($attachmentTmpPath, $dest_path)) {
+                    $attachment = $newAttachmentName;
+                } else {
+                    throw new Exception('There was some error moving the file to upload directory.');
+                }
+            } else {
+                throw new Exception('Upload failed. Allowed file types: ' . implode(',', $allowedfileExtensions));
+            }
+        }
+
+        // Prepare and execute the SQL query
+        $stmt = $pdo->prepare("INSERT INTO group_messages (sender_id, group_id, message,attachment ) VALUES (:sender_id, :group_id, :message, :attachment)");
+        $stmt->execute([
+            ':sender_id' => $sender_id,
+            ':group_id' => $group_id,
+            ':message' => $message,
+            ':attachment' => $attachment
+        ]);
+
+        // Return success response
+        echo json_encode([
+            'success' => true,
+            'message' => 'Message sent successfully.'
+        ]);
+    } catch (Exception $e) {
+        // Return error response
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+}
 
 
 // Route the request to the appropriate handler
@@ -390,6 +586,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/add_user') !=
     handleDeleteAccount($pdo);
 }elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/profile') !== false) {
     handleFetchProfile($pdo);
+}elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/create_group') !== false) {
+    handleCreateGroup($pdo);
+} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/get_groups') !== false) {
+    handleGetGroups($pdo);
+}elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/fetch_allgroup_messages') !== false) {
+    fetchAllGroupMessages($pdo);
+} elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/send_group_message') !== false) {
+    handleSendGroupMessage($pdo);
 }
 
 
