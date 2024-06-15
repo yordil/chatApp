@@ -45,23 +45,21 @@ document
 
 function openChat(user) {
   const chatHeader = document.querySelector(".chat header .details span");
-  const chatimage = document.querySelector(".chat header .Image");
+  const chatImage = document.querySelector(".chat header .Image");
   chatHeader.textContent = `${user.fname} ${user.lname}`;
-  // creating a new image element
+
   const img = document.createElement("img");
   img.src = `http://localhost/ChatChat/chatApp/Backend/uploaded_files/${user.image}`;
   img.alt = "User Image";
-  chatimage.innerHTML = "";
-  chatimage.appendChild(img);
+  chatImage.innerHTML = "";
+  chatImage.appendChild(img);
 
   document.querySelector(".receiver_id_id").value = user.id;
   const chatBox = document.querySelector(".chat-box");
 
-  // Fetch messages between the logged-in user and the selected user
   const sender_id = parseInt(localStorage.getItem("userID"));
   const receiver_id = user.id;
 
-  let allMessages = [];
   fetch(
     `http://localhost/ChatChat/chatApp/Backend/index.php/fetch_all_messages`,
     {
@@ -72,9 +70,9 @@ function openChat(user) {
     }
   ).then((response) => {
     response.json().then((data) => {
-      allMessages = data;
-      //   console.log(allMessages);
-      allMessages?.messages?.forEach((message) => {
+      const allMessages = data.messages || [];
+      chatBox.innerHTML = "";
+      allMessages.forEach((message) => {
         if (
           (message.sender_id === sender_id &&
             message.receiver_id === receiver_id) ||
@@ -86,17 +84,38 @@ function openChat(user) {
             "message",
             message.sender_id === sender_id ? "outgoing" : "incoming"
           );
-          messageElement.innerHTML = `
-              <p>${message.message}</p>
-          
-            `;
+
+          let messageContent = `<p>${message.message}</p>`;
+          let attachmentMessage = "";
+          if (message.attachment) {
+            const fileExtension = message.attachment
+              .split(".")
+              .pop()
+              .toLowerCase();
+            if (["jpg", "jpeg", "png", "gif"].includes(fileExtension)) {
+              attachmentMessage = `<img src="http://localhost/ChatChat/chatApp/Backend/uploaded_files/${message.attachment}" alt="Attachment" style="max-width: 200px; max-height: 200px;" />`;
+            } else if (fileExtension === "pdf") {
+              attachmentMessage = `<a href="http://localhost/ChatChat/chatApp/Backend/uploaded_files/${message.attachment}" target="_blank"><i class="fas fa-file-pdf"></i> Download PDF</a>`;
+            }
+          }
+
+          messageElement.innerHTML = messageContent;
           chatBox.appendChild(messageElement);
+          if (attachmentMessage) {
+            const attachmentElement = document.createElement("div");
+            attachmentElement.classList.add(
+              "message",
+              "message-attachment",
+              message.sender_id === sender_id ? "outgoing" : "incoming"
+            );
+            attachmentElement.innerHTML = attachmentMessage;
+            chatBox.appendChild(attachmentElement);
+          }
         }
       });
     });
   });
 }
-
 // setInterval(() => {
 //   const chatBox = document.querySelector(".chat-box");
 //   chatBox.innerHTML = "";

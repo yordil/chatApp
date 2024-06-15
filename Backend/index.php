@@ -198,18 +198,48 @@ function handleSendMessage($pdo) {
         $sender_id = $_POST['sender_id'];
         $receiver_id = $_POST['receiver_id'];
         $message = $_POST['message'];
+        $attachment = null;
 
         // Validate the input
         if (empty($sender_id) || empty($receiver_id) || empty($message)) {
             throw new Exception('Missing required fields');
         }
 
+        // Handle file upload
+        if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] == UPLOAD_ERR_OK) {
+            $attachmentTmpPath = $_FILES['attachment']['tmp_name'];
+            $attachmentName = $_FILES['attachment']['name'];
+            $attachmentNameCmps = explode(".", $attachmentName);
+            $attachmentExtension = strtolower(end($attachmentNameCmps));
+            $newAttachmentName = md5(time() . $attachmentName) . '.' . $attachmentExtension;
+
+            // Allowed file extensions
+            $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg', 'pdf');
+            if (in_array($attachmentExtension, $allowedfileExtensions)) {
+                // Directory in which the uploaded file will be moved
+                $uploadFileDir = './uploaded_files/';
+                if (!file_exists($uploadFileDir)) {
+                    mkdir($uploadFileDir, 0755, true);
+                }
+                $dest_path = $uploadFileDir . $newAttachmentName;
+
+                if (move_uploaded_file($attachmentTmpPath, $dest_path)) {
+                    $attachment = $newAttachmentName;
+                } else {
+                    throw new Exception('There was some error moving the file to upload directory.');
+                }
+            } else {
+                throw new Exception('Upload failed. Allowed file types: ' . implode(',', $allowedfileExtensions));
+            }
+        }
+
         // Prepare and execute the SQL query
-        $stmt = $pdo->prepare("INSERT INTO messages (sender_id, receiver_id, message) VALUES (:sender_id, :receiver_id, :message)");
+        $stmt = $pdo->prepare("INSERT INTO messages (sender_id, receiver_id, message, attachment) VALUES (:sender_id, :receiver_id, :message, :attachment)");
         $stmt->execute([
             ':sender_id' => $sender_id,
             ':receiver_id' => $receiver_id,
-            ':message' => $message
+            ':message' => $message,
+            ':attachment' => $attachment
         ]);
 
         // Return success response

@@ -70,6 +70,7 @@
               "userName",
               data.user.fname + " " + data.user.lname
             );
+            localStorage.setItem("userEmail", data.user.email);
 
             location.href =
               "http://localhost/ChatChat/chatApp/Frontend/Homepage/Homepage.html";
