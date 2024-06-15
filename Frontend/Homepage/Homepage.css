@@ -261,7 +261,9 @@ body {
 .wrapper .chat .chat-box .message p {
   margin: 0;
 }
-
-.message-attachment {
-  border-radius: 0;
+.fa-download {
+  margin-left: 10px;
+  cursor: pointer;
+  /* color: #007bff; */
+  /* background: #007bff; */
 }

@@ -1,90 +1,126 @@
+/* profile.css */
+
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #f4f4f4;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
 }
 
 .profile-container {
-    display: flex;
-    width: 1024px;
-    align-items: center;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
 }
 
 .profile-image {
-    position: relative;
-    margin-right: 20px;
+  position: relative;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .profile-image img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 2px solid #ddd;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #007bff;
 }
 
 .profile-image button {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 10px;
-    font-size: 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
 }
 
 .profile-info {
-    display: flex;
-    flex-direction: column;
+  width: 100%;
 }
 
 .input-group {
-    margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
 }
 
 .input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 .input-group input {
-    width: 200px;
-    padding: 8px;
-    border: 0px solid #ccc;
-    border-radius: 5px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
 }
 
+.input-group input[readonly] {
+  background-color: #f1f1f1;
+  cursor: not-allowed;
+}
+
+.profile-info button {
+  width: 48%;
+  padding: 10px;
+  margin: 5px 1%;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#updateButton {
+  background-color: #28a745;
+  color: white;
+}
+
+#deleteButton {
+  background-color: #dc3545;
+  color: white;
+}
 
 .user-report {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 1024px;
-    text-align: center;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
 }
 
 .user-report h2 {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .user-report p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+@media (max-width: 600px) {
+  .profile-container {
+    width: 95%;
+  }
+
+  .profile-info button {
+    width: 100%;
     margin: 5px 0;
-    font-size: 16px;
+  }
 }

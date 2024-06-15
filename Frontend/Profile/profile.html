@@ -1,45 +1,202 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile Page</title>
-    <link rel="stylesheet" href="profile.css">
-</head>
-<body>
+    <link rel="stylesheet" href="profile.css" />
+  </head>
+  <body>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Selecting logged user data elements
+        const LoggeduserImage = document.querySelector(".LoggeduserImage");
+
+        // Getting data from local storage
+        const userImage = localStorage.getItem("userImage");
+
+        // Debugging
+        // console.log("userImage from localStorage:", userImage);
+
+        if (userImage) {
+          // Setting the image source from backend using the userImage from local storage
+          LoggeduserImage.src = `http://localhost/ChatChat/chatApp/Backend/uploaded_files/${userImage}`;
+        }
+      });
+    </script>
+
     <div class="profile-container">
-        <div class="profile-image">
-            <img id="profilePic" src="https://st.depositphotos.com/1000955/1261/i/450/depositphotos_12613025-stock-photo-rippled-water-surface.jpg" alt="Profile Image">
-            <input type="file" id="uploadPic" accept="image/*" style="display: none;" onchange="loadFile(event)">
-            <button onclick="document.getElementById('uploadPic').click()">Edit</button>
+      <div class="profile-image">
+        <img
+          class="LoggeduserImage"
+          id="profilePic"
+          src="https://st.depositphotos.com/1000955/1261/i/450/depositphotos_12613025-stock-photo-rippled-water-surface.jpg"
+          alt="Profile Image"
+        />
+        <input
+          type="file"
+          id="uploadPic"
+          accept="image/*"
+          style="display: none"
+          onchange="loadFile(event)"
+        />
+        <button onclick="document.getElementById('uploadPic').click()">
+          Edit
+        </button>
+      </div>
+      <div class="profile-info">
+        <div class="input-group">
+          <label for="fname">Name:</label>
+          <input
+            type="text"
+            id="fname"
+            name="fname"
+            value=""
+            autocomplete="off"
+          />
+          <label for="lname">LName:</label>
+          <input
+            type="text"
+            id="lname"
+            name="lname"
+            value=""
+            autocomplete="off"
+          />
         </div>
-        <div class="profile-info">
-            <div class="input-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" value="Teklu Moges" autocomplete="off">
-            </div>
-            <div class="input-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="teklu@gmail.com" readonly>
-            </div>
+        <div class="input-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" value="" readonly />
         </div>
+        <button id="updateButton">Update</button>
+        <button id="deleteButton">Delete Account</button>
+      </div>
     </div>
     <div class="user-report">
-        <h2>User Data Report</h2>
-        <p>Friends: 120</p>
-        <p>Joined Date: January 15, 2020</p>
-        <p>Groups Joined: Section E, AASTU Students</p>
-        <p>Profile Views: 10</p>
+      <h2>User Data Report</h2>
+      <p>Friends: 120</p>
+      <p id="joinedDate">Joined Date:</p>
+      <p id="groupsJoined">Groups Joined:</p>
+      <p>Profile Views: 10</p>
     </div>
     <script>
-        function loadFile(event) {
-            var image = document.getElementById('profilePic');
-            image.src = URL.createObjectURL(event.target.files[0]);
-            image.onload = function() {
-                URL.revokeObjectURL(image.src); // free memory
+      document.addEventListener("DOMContentLoaded", (event) => {
+        // Fetch and set user data from localStorage
+        let Name = localStorage.getItem("userName");
+        let fname = Name ? Name.split(" ")[0] : "";
+        let lname = Name ? Name.split(" ")[1] : "";
+        const email = localStorage.getItem("userEmail") || "";
+        const ID = localStorage.getItem("userID") || "";
+
+        document.getElementById("fname").value = fname;
+        document.getElementById("email").value = email;
+        document.getElementById("lname").value = lname;
+
+        // Fetch user join date and groups joined from the database
+        fetch("http://localhost/ChatChat/chatApp/Backend/index.php/profile")
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById(
+              "joinedDate"
+            ).textContent = `Joined Date: ${data.created_at}`;
+            // document.getElementById('groupsJoined').textContent = `Groups Joined: ${data.groups.join(', ')}`;
+          });
+        // Update button logic
+        document
+          .getElementById("updateButton")
+          .addEventListener("click", () => {
+            const fname = document.getElementById("fname").value;
+            const lname = document.getElementById("lname").value;
+            const userID = parseInt(localStorage.getItem("userID")); // Ensure userID is retrieved from localStorage or some other source
+            const profilePic = document.getElementById("uploadPic").files[0];
+
+            const formData = new FormData();
+            formData.append("userID", userID);
+            formData.append("fname", fname);
+            formData.append("lname", lname);
+
+            if (profilePic) {
+              formData.append("profilePic", profilePic);
             }
 
-        }
+            console.log("formData:", formData);
+
+            // Sending POST request to the backend on the update profile endpoint
+            fetch(
+              "http://localhost/ChatChat/chatApp/Backend/index.php/updateprofile",
+              {
+                method: "POST",
+                body: formData,
+              }
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  localStorage.setItem("userName", `${fname} ${lname}`);
+                  if (data.profilePic) {
+                    document.getElementById("profilePic").src = data.profilePic;
+                    localStorage.setItem("userImage", data.profilePic);
+                  }
+                  alert("Profile updated successfully.");
+                  location.reload(); // Reload the page after update
+                } else {
+                  alert("Failed to update profile: " + data.message);
+                }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                alert("There was an error updating your profile.");
+              });
+          });
+
+        // Delete account button logic
+        document
+          .getElementById("deleteButton")
+          .addEventListener("click", () => {
+            if (confirm("Are you sure you want to delete your account?")) {
+              const userID = localStorage.getItem("userID");
+              if (userID) {
+                // Check if userID is available
+                const formData = new FormData();
+                formData.append("userID", userID);
+
+                // Logic for deleting account
+                fetch(
+                  "http://localhost/ChatChat/chatApp/Backend/index.php/delete",
+                  {
+                    method: "POST",
+                    body: formData,
+                  }
+                )
+                  .then((response) => response.json())
+                  .then((data) => {
+                    if (data.success) {
+                      alert("Account deleted successfully.");
+                      localStorage.clear();
+                      // Redirect to login page after deletion
+                      window.location.href =
+                        "http://localhost/ChatChat/chatApp/Frontend/Login/login.html";
+                    } else {
+                      alert("Failed to delete account: " + data.message);
+                    }
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                    alert("There was an error deleting your account.");
+                  });
+              } else {
+                alert("User ID not found.");
+              }
+            }
+          });
+      });
+
+      function loadFile(event) {
+        var image = document.getElementById("profilePic");
+        image.src = URL.createObjectURL(event.target.files[0]);
+        image.onload = function () {
+          URL.revokeObjectURL(image.src); // free memory
+        };
+      }
     </script>
-</body>
+  </body>
 </html>

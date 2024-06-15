@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat App</title>
     <link rel="stylesheet" href="Homepage.css" />
+
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
   </head>
   <body>
@@ -75,7 +79,11 @@
       <section class="users">
         <header>
           <div class="content">
-            <img alt="User Image" class="LoggeduserImage" />
+            <a
+              href="http://localhost/ChatChat/chatApp/Frontend/Profile/profile.html"
+            >
+              <img alt="User Image" class="LoggeduserImage" />
+            </a>
             <div class="details">
               <span class="LoggeduserName">John Doe</span>
               <p>Active Now</p>
@@ -137,7 +145,7 @@
             accept="image/*, application/pdf"
           />
           <button class="send-btn">
-            <i class="fab fa-telegram-plane"></i>
+            <i class="fa-solid fa-paper-plane"></i>
           </button>
         </form>
       </section>

@@ -198,48 +198,18 @@ function handleSendMessage($pdo) {
         $sender_id = $_POST['sender_id'];
         $receiver_id = $_POST['receiver_id'];
         $message = $_POST['message'];
-        $attachment = null;
 
         // Validate the input
         if (empty($sender_id) || empty($receiver_id) || empty($message)) {
             throw new Exception('Missing required fields');
         }
 
-        // Handle file upload
-        if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] == UPLOAD_ERR_OK) {
-            $attachmentTmpPath = $_FILES['attachment']['tmp_name'];
-            $attachmentName = $_FILES['attachment']['name'];
-            $attachmentNameCmps = explode(".", $attachmentName);
-            $attachmentExtension = strtolower(end($attachmentNameCmps));
-            $newAttachmentName = md5(time() . $attachmentName) . '.' . $attachmentExtension;
-
-            // Allowed file extensions
-            $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg', 'pdf');
-            if (in_array($attachmentExtension, $allowedfileExtensions)) {
-                // Directory in which the uploaded file will be moved
-                $uploadFileDir = './uploaded_files/';
-                if (!file_exists($uploadFileDir)) {
-                    mkdir($uploadFileDir, 0755, true);
-                }
-                $dest_path = $uploadFileDir . $newAttachmentName;
-
-                if (move_uploaded_file($attachmentTmpPath, $dest_path)) {
-                    $attachment = $newAttachmentName;
-                } else {
-                    throw new Exception('There was some error moving the file to upload directory.');
-                }
-            } else {
-                throw new Exception('Upload failed. Allowed file types: ' . implode(',', $allowedfileExtensions));
-            }
-        }
-
         // Prepare and execute the SQL query
-        $stmt = $pdo->prepare("INSERT INTO messages (sender_id, receiver_id, message, attachment) VALUES (:sender_id, :receiver_id, :message, :attachment)");
+        $stmt = $pdo->prepare("INSERT INTO messages (sender_id, receiver_id, message) VALUES (:sender_id, :receiver_id, :message)");
         $stmt->execute([
             ':sender_id' => $sender_id,
             ':receiver_id' => $receiver_id,
-            ':message' => $message,
-            ':attachment' => $attachment
+            ':message' => $message
         ]);
 
         // Return success response
@@ -256,22 +226,150 @@ function handleSendMessage($pdo) {
     }
 }
 
+function handleUpdateProfile($pdo) {
+    try {
+        // Retrieve POST data
+        $user_id = $_POST['userID'];
+        $fname = $_POST['fname'];
+        $lname = $_POST['lname'];
+        
+
+        // Validate inputs (basic validation, enhance as needed)
+        if (empty($user_id) || empty($fname) || empty($lname)) {
+            throw new Exception('Please fill all required fields.');
+        }
+
+        // Initialize profilePic variable
+        $profilePic = null;
+
+        // Handle file upload if a file is uploaded
+        if (isset($_FILES['profilePic']) && $_FILES['profilePic']['error'] == UPLOAD_ERR_OK) {
+            $imageTmpPath = $_FILES['profilePic']['tmp_name'];
+            $imageName = $_FILES['profilePic']['name'];
+            $imageSize = $_FILES['profilePic']['size'];
+            $imageType = $_FILES['profilePic']['type'];
+            $imageNameCmps = explode(".", $imageName);
+            $imageExtension = strtolower(end($imageNameCmps));
+            $newImageName = md5(time() . $imageName) . '.' . $imageExtension;
+
+            // Allowed file extensions
+            $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg');
+            if (in_array($imageExtension, $allowedfileExtensions)) {
+                // Directory in which the uploaded file will be moved
+                $uploadFileDir = './uploaded_files/';
+                if (!file_exists($uploadFileDir)) {
+                    mkdir($uploadFileDir, 0755, true);
+                }
+                $dest_path = $uploadFileDir . $newImageName;
+
+                if (move_uploaded_file($imageTmpPath, $dest_path)) {
+                    $profilePic = $newImageName;
+                } else {
+                    throw new Exception('There was some error moving the file to upload directory.');
+                }
+            } else {
+                throw new Exception('Upload failed. Allowed file types: ' . implode(',', $allowedfileExtensions));
+            }
+        }
+
+        // Prepare and execute the SQL query for updating user profile
+        if ($profilePic) {
+            $stmt = $pdo->prepare("UPDATE users SET fname = :fname, lname = :lname, image = :image WHERE id = :user_id");
+            $stmt->execute([
+                ':fname' => $fname,
+                ':lname' => $lname,
+                ':image' => $profilePic,
+                ':user_id' => $user_id
+            ]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE users SET fname = :fname, lname = :lname WHERE id = :user_id");
+            $stmt->execute([
+                ':fname' => $fname,
+                ':lname' => $lname,
+                ':user_id' => $user_id
+            ]);
+        }
+
+        // Return success response
+        echo json_encode([
+            'success' => true,
+            'message' => 'Profile updated successfully.',
+            'profilePic' => $profilePic ? $profilePic : null
+        ]);
+    } catch (Exception $e) {
+        // Return error response
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+}
+
+function handleDeleteAccount($pdo) {
+    try {
+        // Retrieve the POST data
+        $user_id = $_POST['userID'];
+        
+        // Validate the input
+        if (empty($user_id)) {
+            throw new Exception('User ID is required.');
+        }
+
+        // Begin a transaction
+        $pdo->beginTransaction();
+
+        // Delete the user (this will also delete related messages due to ON DELETE CASCADE)
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = :user_id");
+        $stmt->execute([':user_id' => $user_id]);
+
+        // Commit the transaction
+        $pdo->commit();
+
+        // Return success response
+        echo json_encode([
+            'success' => true,
+            'message' => 'Account deleted successfully.'
+        ]);
+    } catch (Exception $e) {
+        // Rollback the transaction in case of error
+        $pdo->rollBack();
+
+        // Log error to a file
+        file_put_contents('error_log.txt', $e->getMessage() . PHP_EOL, FILE_APPEND);
+
+        // Return error response
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+}
+
+
+
+
+
+
 // Route the request to the appropriate handler
 $request_uri = $_SERVER['REQUEST_URI'];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/add_user') !== false) {
     handleAddUser($pdo);
-} else if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/login') !== false) {
+} elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/login') !== false) {
     handleLogin($pdo);
-} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/get_users') !== false) {
+} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/get_users') !== false) {
     handleGetUsers($pdo);
-} else if ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/fetch_messages') !== false) {
+} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/fetch_messages') !== false) {
     handleFetchMessages($pdo);
-} else if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/send_message') !== false) {
+} elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/send_message') !== false) {
     handleSendMessage($pdo);
-} 
-else if ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/fetch_all_messages') !== false) {
+} elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/fetch_all_messages') !== false) {
     feachAllMessages($pdo);
+} elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/updateprofile') !== false) {
+    handleUpdateProfile($pdo);
+}elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/delete') !== false) {
+    handleDeleteAccount($pdo);
 }
+
 
 else {
     ob_clean();
