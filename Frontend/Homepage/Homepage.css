@@ -1,4 +1,5 @@
-* {
+/* Existing CSS*/
+ {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -163,8 +164,7 @@ body {
   background: #555;
 }
 
-.wrapper .users .users-list .user,
-.wrapper .chat .chat-box .message {
+.wrapper .users .users-list .user {
   display: flex;
   align-items: center;
   padding: 10px;
@@ -173,8 +173,7 @@ body {
   transition: 0.3s;
 }
 
-.wrapper .users .users-list .user img,
-.wrapper .chat .chat-box .message img {
+.wrapper .users .users-list .user img {
   height: 40px;
   width: 40px;
   object-fit: cover;
@@ -182,20 +181,17 @@ body {
   margin-right: 10px;
 }
 
-.wrapper .users .users-list .user .details,
-.wrapper .chat .chat-box .message .details {
+.wrapper .users .users-list .user .details {
   display: flex;
   flex-direction: column;
 }
 
-.wrapper .users .users-list .user .details span,
-.wrapper .chat .chat-box .message .details span {
+.wrapper .users .users-list .user .details span {
   font-size: 16px;
   font-weight: 500;
 }
 
-.wrapper .users .users-list .user .details p,
-.wrapper .chat .chat-box .message .details p {
+.wrapper .users .users-list .user .details p {
   font-size: 14px;
   color: #888;
 }
@@ -233,4 +229,36 @@ body {
 
 .wrapper .chat .typing-area button:hover {
   background: #0056b3;
+}
+
+/* New CSS for incoming and outgoing messages */
+.wrapper .chat .chat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wrapper .chat .chat-box .message {
+  max-width: 60%;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  word-wrap: break-word;
+}
+
+.wrapper .chat .chat-box .message.incoming {
+  align-self: flex-end;
+  background: #e0e0e0;
+  color: #333;
+}
+
+.wrapper .chat .chat-box .message.outgoing {
+  align-self: flex-start;
+  background: #007bff;
+  color: #fff;
+}
+
+.wrapper .chat .chat-box .message p {
+  margin: 0;
 }
