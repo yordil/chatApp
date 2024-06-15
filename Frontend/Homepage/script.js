@@ -45,7 +45,15 @@ document
 
 function openChat(user) {
   const chatHeader = document.querySelector(".chat header .details span");
-  chatHeader.textContent = `Chat with ${user.fname} ${user.lname}`;
+  const chatimage = document.querySelector(".chat header .Image");
+  chatHeader.textContent = `${user.fname} ${user.lname}`;
+  // creating a new image element
+  const img = document.createElement("img");
+  img.src = `http://localhost/ChatChat/chatApp/Backend/uploaded_files/${user.image}`;
+  img.alt = "User Image";
+  chatimage.innerHTML = "";
+  chatimage.appendChild(img);
+
   document.querySelector(".receiver_id_id").value = user.id;
   const chatBox = document.querySelector(".chat-box");
 
