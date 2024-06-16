@@ -401,6 +401,39 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.getItem("userID");
   }
 
+  function filterUsers() {
+    const searchInput = document
+      .getElementById("searchInput")
+      .value.toLowerCase();
+    const userElements = document.querySelectorAll(".users-list .user");
+    console.log(userElements);
+
+    userElements.forEach((userElement) => {
+      const userName = userElement
+        .querySelector(".details span")
+        .textContent.toLowerCase();
+      if (userName.includes(searchInput)) {
+        userElement.style.display = "flex"; // Show matching user
+      } else {
+        userElement.style.display = "none"; // Hide non-matching user
+      }
+    });
+  }
+
+  // Add event listener to the search button
+  document
+    .getElementById("searchButton")
+    .addEventListener("click", function (event) {
+      event.preventDefault();
+      filterUsers();
+    });
+
+  // Add event listener to the search input for real-time filtering
+  document.getElementById("searchInput").addEventListener("input", function () {
+    filterUsers();
+  });
+
+  // Existing code for fetching and displaying users...
   document
     .querySelector(".user-btn")
     .addEventListener("click", async function () {
@@ -427,11 +460,11 @@ document.addEventListener("DOMContentLoaded", function () {
               openChat(user);
             });
             userItem.innerHTML = `
-            <img src="http://localhost/ChatChat/chatApp/Backend/uploaded_files/${user.image}" alt="User Image">
-            <div class="details">
-              <span>${user.fname} ${user.lname}</span>
-              <p>${user.status}</p>
-            </div>`;
+          <img src="http://localhost/ChatChat/chatApp/Backend/uploaded_files/${user.image}" alt="User Image">
+          <div class="details">
+            <span>${user.fname} ${user.lname}</span>
+            <p>${user.status}</p>
+          </div>`;
             usersList.appendChild(userItem);
           });
         } else {
