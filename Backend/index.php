@@ -566,6 +566,20 @@ function handleSendGroupMessage($pdo) {
 }
 
 
+////////// count from private messages table ////////////////
+
+function handleGetMessagess($pdo) {
+    try {
+        $user_id = $_POST['user_id'];
+        $sql = "SELECT COUNT(*) as total FROM messages WHERE receiver_id = $user_id OR sender_id = $user_id";
+        $stmt = $pdo->query($sql);
+        $messages = $stmt->fetch();
+        echo json_encode(['success' => true, 'messages' => $messages]);
+    } catch (\PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch messages: ' . $e->getMessage()]);
+    }
+}
+
 // Route the request to the appropriate handler
 $request_uri = $_SERVER['REQUEST_URI'];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/add_user') !== false) {
@@ -594,6 +608,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/add_user') !=
     fetchAllGroupMessages($pdo);
 } elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($request_uri, '/send_group_message') !== false) {
     handleSendGroupMessage($pdo);
+}elseif ($_SERVER['REQUEST_METHOD'] == 'GET' && strpos($request_uri, '/get_messagess') !== false) {
+    handleGetMessagess($pdo);
+    // handleUpdateProfile($pdo);
 }
 
 

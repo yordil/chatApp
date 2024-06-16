@@ -124,3 +124,41 @@ body {
     margin: 5px 0;
   }
 }
+
+/* ***************** */
+.report-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px; /* Adjust the gap between items as needed */
+  max-width: 600px; /* Adjust the max width as needed */
+  margin: 0 auto; /* Center the grid container */
+  padding: 20px;
+  background-color: #f9f9f9; /* Background color of the grid container */
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow for a nicer look */
+}
+
+.report-item {
+  background-color: #fff;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow for individual items */
+  font-size: 18px;
+}
+
+.report-item p {
+  margin: 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.report-item p br {
+  display: none; /* Hide the line break */
+}
+
+@media (max-width: 600px) {
+  .report-grid {
+    grid-template-columns: 1fr;
+  }
+}
