@@ -49,7 +49,10 @@ $stmt_update->bind_param("si", $password_hash, $user["id"]); // Assuming id is a
 $stmt_update->execute();
 
 if ($stmt_update->affected_rows > 0) {
-    echo "Password updated successfully. You can now login.";
+   
+    header("Location: http://localhost/ChatChat/chatApp/Frontend/Login/login.html");
+    exit;
+
 } else {
     echo "Failed to update password.";
 }
