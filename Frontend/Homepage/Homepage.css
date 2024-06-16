@@ -415,3 +415,21 @@ body {
 .modal-content button[type="submit"]:hover {
   background-color: #45a049;
 }
+
+/* *************** Export chat history  ********************* */
+
+.export-btn {
+  margin-left: 100px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+}
+
+.export-btn i {
+  margin-right: 5px;
+}

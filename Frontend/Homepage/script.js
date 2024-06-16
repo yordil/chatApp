@@ -234,7 +234,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     localStorage.setItem("groupID", group.id);
 
-    // clear chat box
+    // Show the Export button
+    document.getElementById("downloadChatHistory").style.display = "none";
 
     chatHeader.textContent = `${group.name}`;
     chatImage.innerHTML = "";
@@ -406,7 +407,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .getElementById("searchInput")
       .value.toLowerCase();
     const userElements = document.querySelectorAll(".users-list .user");
-    console.log(userElements);
 
     userElements.forEach((userElement) => {
       const userName = userElement
@@ -485,10 +485,116 @@ document.addEventListener("DOMContentLoaded", function () {
     chatImage.innerHTML = "";
     chatImage.appendChild(img);
     document.querySelector(".receiver_id_id").value = user.id;
+
+    // Show the Export button
+    document.getElementById("downloadChatHistory").style.display = "flex";
+
     fetchMessages();
     if (window.messageInterval) {
       clearInterval(window.messageInterval);
     }
     window.messageInterval = setInterval(fetchMessages, 2000); // Fetch messages every 2 seconds
+  }
+
+  document
+    .getElementById("downloadChatHistory")
+    .addEventListener("click", async function () {
+      const chatBox = document.querySelector(".chat-box");
+      const chatMessages = Array.from(chatBox.querySelectorAll(".message")).map(
+        (message) => message.innerHTML
+      );
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(12);
+      doc.text(10, 10, "Chat History");
+
+      let y = 20;
+      const lineHeight = 10; // Line height for each message
+
+      for (let message of chatMessages) {
+        // Remove HTML tags
+        const textContent = message.replace(/<\/?[^>]+(>|$)/g, "");
+        // Split messages into lines if they are too long
+        const lines = splitTextToFitWidth(doc, textContent, 180);
+
+        for (let line of lines) {
+          // Check for hyperlinks and convert them
+          const hyperlinkRegex = /(https?:\/\/[^\s]+)/g;
+          const parts = line.split(hyperlinkRegex);
+
+          for (let part of parts) {
+            if (hyperlinkRegex.test(part)) {
+              // Add hyperlink
+              doc.textWithLink(part, 10, y, { url: part });
+            } else {
+              // Add normal text
+              doc.text(10, y, part);
+            }
+            y += lineHeight;
+
+            // Check if we need a new page
+            if (y > 280) {
+              doc.addPage();
+              y = 20; // Reset y position for new page
+            }
+          }
+        }
+
+        // Check for images and add them
+        const imgRegex = /<img src="(.*?)"[^>]*>/g;
+        let imgMatch;
+        while ((imgMatch = imgRegex.exec(message)) !== null) {
+          const imgUrl = imgMatch[1];
+          const imgData = await loadImageToBase64(imgUrl);
+
+          doc.addImage(imgData, "JPEG", 10, y, 50, 50); // Adjust the size and position as needed
+          y += 60; // Adjust the y position to add space after the image
+        }
+
+        // Add spacing between messages
+        y += lineHeight;
+      }
+
+      doc.save("ChatHistory.pdf");
+    });
+
+  function splitTextToFitWidth(doc, text, maxWidth) {
+    const words = text.split(" ");
+    const lines = [];
+    let currentLine = "";
+
+    words.forEach((word) => {
+      const testLine = currentLine + word + " ";
+      const testWidth = doc.getTextWidth(testLine);
+
+      if (testWidth > maxWidth) {
+        lines.push(currentLine.trim());
+        currentLine = word + " ";
+      } else {
+        currentLine = testLine;
+      }
+    });
+
+    lines.push(currentLine.trim());
+    return lines;
+  }
+
+  function loadImageToBase64(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL("image/jpeg");
+        resolve(dataURL);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
   }
 });
